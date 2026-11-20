@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Online Quiz Application</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f2eeee}
+.quiz-container{max-width:600px;margin:40px auto;background:#f8eeee;padding:30px;border-radius:8px;box-shadow:0 4px
+15px #ccc}
+.top{display:flex;justify-content:space-between;align-items:center}
+.question-number{font-size:14px;color:#555}
+.score-box{text-align:center;color:#bd7777}
+.score-box h2{margin:5px;font-size:30px}
+
+.progress{height:15px;width:180px;background:white;border:2px solid #d99a9a;border-radius:3px;margin-
+top:8px;overflow:hidden}
+
+.progress-bar{height:100%;width:0%;background:#cc7777;transition:0.4s}
+h2.question{font-size:22px;color:#222;margin-top:30px;min-height:55px}
+.options{margin-top:20px}
+.option{display:flex;align-items:center;background:white;border:1px solid #eee;margin:8px 0;cursor:pointer;transition:0.2s}
+.option:hover{background:#f5dede}
+.letter{background:#c77e7e;color:white;width:40px;padding:12px;text-align:center;font-weight:bold}
+.option-text{padding:12px;font-size:14px}
+.option.selected{border:2px solid #c77e7e;background:#f8dddd}
+.option.correct{background:#d5f5df;border:2px solid green}
+.option.wrong{background:#ffdada;border:2px solid red}
+.buttons{display:flex;justify-content:space-between;margin-top:25px}
+button{padding:12px 25px;border:none;background:#c77e7e;color:white;border-radius:5px;cursor:pointer;font-size:15px}
+button:hover{background:#a85d5d}
+button:disabled{background:#ccc;cursor:not-allowed}
+#result{text-align:center;display:none}
+#result h1{color:#c77e7e}
+@media(max-width:500px){.quiz-container{padding:18px}h2.question{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="quiz-container">
+<div id="quiz">
+
+OBCFC - Practicum Manual (2025-26) Division of Computer Science and Engineering
+
+Karunya Institute of Technology and Sciences Page 22 of 25
+<div class="top">
+<div>
+<div class="question-number" id="questionNumber">Question 1/5</div>
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+</div>
+<div class="score-box">Score<h2 id="score">0</h2></div>
+</div>
+<h2 class="question" id="question">Question will appear here</h2>
+<div class="options" id="options"></div>
+<div class="buttons">
+<button onclick="nextQuestion()" id="nextBtn">Next</button>
+</div>
+</div>
+<div id="result">
+<h1>Quiz Completed!</h1>
+<h2 id="finalScore"></h2>
+<p id="percentage"></p>
+<button onclick="restartQuiz()">Restart Quiz</button>
+</div>
+</div>
+<script>
+const questions=[
+{question:"In web design, what does CSS stand for?",options:["Counter Style Sheet","Creative Style Sheet","Computer Style
+Sheet","Cascading Style Sheet"],answer:3},
+{question:"What does HTML stand for?",options:["Hyper Text Markup Language","High Text Machine Language","Hyper Tool
+Markup Language","Home Text Markup Language"],answer:0},
+{question:"Which HTML tag is used to create a hyperlink?",options:["<link>","<a>","<href>","<url>"],answer:1},
+{question:"Which CSS property changes text color?",options:["background","font-size","color","text-style"],answer:2},
+{question:"Which language is used to make webpages interactive?",options:["HTML","CSS","JavaScript","SQL"],answer:2}
+];
+let currentQuestion=0;
+let score=0;
+let selectedAnswer=null;
+let answered=false;
+function loadQuestion(){
+answered=false;
+selectedAnswer=null;
+let q=questions[currentQuestion];
+document.getElementById("questionNumber").innerText="Question "+(currentQuestion+1)+"/"+questions.length;
+
+OBCFC - Practicum Manual (2025-26) Division of Computer Science and Engineering
+
+Karunya Institute of Technology and Sciences Page 23 of 25
+document.getElementById("question").innerText=q.question;
+document.getElementById("score").innerText=score;
+document.getElementById("progressBar").style.width=(currentQuestion/questions.length*100)+"%";
+document.getElementById("nextBtn").innerText=currentQuestion===questions.length-1?"Finish Quiz":"Next";
+let optionsHTML="";
+q.options.forEach(function(option,index){
+let letter=["A","B","C","D"][index];
+optionsHTML+=`<div class="option" onclick="selectOption(${index})" id="option${index}"><div
+class="letter">${letter}</div><div class="option-text">${option}</div></div>`;
+});
+document.getElementById("options").innerHTML=optionsHTML;
+document.getElementById("nextBtn").disabled=true;
+}
+function selectOption(index){
+if(answered)return;
+selectedAnswer=index;
+document.querySelectorAll(".option").forEach(function(option){
+option.classList.remove("selected");
+});
+document.getElementById("option"+index).classList.add("selected");
+document.getElementById("nextBtn").disabled=false;
+}
+function nextQuestion(){
+if(selectedAnswer===null||answered){
+alert("Please select an answer!");
+return;
+}
+answered=true;
+let correctAnswer=questions[currentQuestion].answer;
+if(selectedAnswer===correctAnswer){
+score++;
+document.getElementById("option"+selectedAnswer).classList.add("correct");
+}else{
+document.getElementById("option"+selectedAnswer).classList.add("wrong");
+document.getElementById("option"+correctAnswer).classList.add("correct");
+}
+document.getElementById("score").innerText=score;
+setTimeout(function(){
+
+OBCFC - Practicum Manual (2025-26) Division of Computer Science and Engineering
+
+Karunya Institute of Technology and Sciences Page 24 of 25
+currentQuestion++;
+if(currentQuestion<questions.length){
+loadQuestion();
+}else{
+showResult();
+}
+},600);
+}
+function showResult(){
+document.getElementById("quiz").style.display="none";
+document.getElementById("result").style.display="block";
+let percentage=(score/questions.length)*100;
+document.getElementById("finalScore").innerText="Your Score: "+score+"/"+questions.length;
+document.getElementById("percentage").innerText="Percentage: "+percentage+"%";
+}
+function restartQuiz(){
+currentQuestion=0;
+score=0;
+selectedAnswer=null;
+document.getElementById("quiz").style.display="block";
+document.getElementById("result").style.display="none";
+loadQuestion();
+}
+loadQuestion();
+</script>
+</body>
+</html>
